@@ -19,6 +19,6 @@ func SendFile(client *peer.Client, filePath string) error {
 		return err
 	}
 
-	log.Println("File sent successfully!")
+	log.Println("[CLIENT]: File sent successfully!")
 	return nil
 }
