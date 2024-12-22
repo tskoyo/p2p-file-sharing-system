@@ -1,14 +1,11 @@
 package peer
 
 import (
-	"fmt"
+	"io"
 	"log"
 	"net"
+	"os"
 )
-
-type Client struct {
-	Conn net.Conn
-}
 
 func StartServer(address string) {
 	listener, err := net.Listen("tcp", address)
@@ -31,19 +28,18 @@ func StartServer(address string) {
 
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
-	fmt.Fprintln(conn, "Hello, peer!")
-}
 
-func NewClient(address string) *Client {
-	return &Client{}
-}
+	log.Println("Server handling connection")
 
-func (c *Client) Connect() error {
-	conn, err := net.Dial("tcp", "localhost:9000")
+	file, err := os.Create("received_file.txt")
 	if err != nil {
-		return err
+		log.Fatal("Error creating a file: ", err)
 	}
-	c.Conn = conn
-	fmt.Println("Connected to server!")
-	return nil
+
+	defer file.Close()
+
+	_, err = io.Copy(file, conn)
+	if err != nil {
+		log.Fatal("Failed to send file: ", err)
+	}
 }

@@ -4,18 +4,10 @@ import (
 	"log"
 	"p2p-file-sharing-system/pkg/peer"
 	"p2p-file-sharing-system/pkg/transfer"
-	"sync"
 )
 
 func main() {
-	var wg sync.WaitGroup
-
-	wg.Add(1)
-
-	go func() {
-		defer wg.Done()
-		peer.StartServer("localhost:9000")
-	}()
+	go peer.StartServer("localhost:9000")
 
 	client := peer.NewClient("localhost:9000")
 	if err := client.Connect(); err != nil {
@@ -29,5 +21,5 @@ func main() {
 		panic(err)
 	}
 
-	wg.Wait()
+	select {}
 }

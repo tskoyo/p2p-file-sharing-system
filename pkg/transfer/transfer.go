@@ -4,7 +4,7 @@ import (
 	"io"
 	"log"
 	"os"
-	"p2p-file-sharing-system/pkg/peer" // Import the peer package
+	"p2p-file-sharing-system/pkg/peer"
 )
 
 func SendFile(client *peer.Client, filePath string) error {
