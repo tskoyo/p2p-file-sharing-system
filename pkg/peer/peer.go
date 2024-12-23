@@ -8,6 +8,8 @@ import (
 	"os"
 )
 
+var connections = NewConnectionPool()
+
 func StartServer(address string) {
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
@@ -28,9 +30,13 @@ func StartServer(address string) {
 }
 
 func handleConnection(conn net.Conn, connectionType int) {
+	log.Println("Handling incoming connection...")
 	defer conn.Close()
 
-	log.Println("Server handling connection")
+	address := conn.RemoteAddr().String()
+	connections.Add(address, conn)
+
+	log.Printf("Connection added: %s", address)
 
 	switch connectionType {
 	case 0: // upload
