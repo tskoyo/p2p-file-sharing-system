@@ -16,8 +16,8 @@ func NewClient(address string) *Client {
 	return &Client{}
 }
 
-func (c *Client) Connect() error {
-	conn, err := net.Dial("tcp", "localhost:9000")
+func (c *Client) Connect(peerAddress string) error {
+	conn, err := net.Dial("tcp", peerAddress)
 	if err != nil {
 		return err
 	}

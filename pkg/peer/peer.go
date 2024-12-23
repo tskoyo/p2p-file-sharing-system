@@ -21,6 +21,7 @@ func StartServer(address string) {
 
 	for {
 		conn, err := listener.Accept()
+		log.Println("new connection found!: ", conn.LocalAddr().String())
 		if err != nil {
 			log.Printf("Connection error: %v", err)
 			continue
@@ -38,20 +39,23 @@ func handleConnection(conn net.Conn, connectionType int) {
 
 	log.Printf("Connection added: %s", address)
 
-	switch connectionType {
-	case 0: // upload
-		err := receiveFile(conn, "received_file.txt")
-		if err != nil {
-			log.Printf("Error receiving file: %v", err)
-		}
-	case 1: // download
-		err := sendFile(conn, "received_file.txt")
-		if err != nil {
-			log.Printf("Error sending file: %v", err)
-		}
-	default:
-		log.Printf("Unknown command: %d", connectionType)
-	}
+	// switch connectionType {
+	// case 0: // upload
+	// 	err := receiveFile(conn, "received_file.txt")
+	// 	if err != nil {
+	// 		log.Printf("Error receiving file: %v", err)
+	// 	}
+	// case 1: // download
+	// 	err := sendFile(conn, "received_file.txt")
+	// 	if err != nil {
+	// 		log.Printf("Error sending file: %v", err)
+	// 	}
+	// default:
+	// 	log.Printf("Unknown command: %d", connectionType)
+	// }
+
+	connectedPeers := connections.List()
+	log.Println("Connected peers: ", connectedPeers)
 }
 
 func receiveFile(conn net.Conn, filename string) error {
