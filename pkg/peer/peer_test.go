@@ -35,12 +35,12 @@ func TestMultipleClientsConnectingToServer(t *testing.T) {
 			}
 
 			log.Printf("[Client %d] Connected successfully!", clientID)
-			// t.Logf("[Client %d] Connected successfully!", clientID)
 			clientErrors <- nil
 		}(i)
 	}
 
-	wg.Wait()
+	wg.Wait()       // wait for all client goroutines to finish
+	serverWg.Wait() // wait for all server-side goroutines to finish
 	close(clientErrors)
 
 	for err := range clientErrors {

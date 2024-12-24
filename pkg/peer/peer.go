@@ -3,9 +3,11 @@ package peer
 import (
 	"log"
 	"net"
+	"sync"
 )
 
 var connections = NewConnectionPool()
+var serverWg sync.WaitGroup
 
 func StartServer(address string) {
 	listener, err := net.Listen("tcp", address)
@@ -22,12 +24,14 @@ func StartServer(address string) {
 			log.Printf("Connection error: %v", err)
 			continue
 		}
-		go handleConnection(conn, 0)
+		serverWg.Add(1)
+		go handleConnection(conn)
 	}
 }
 
-func handleConnection(conn net.Conn, connectionType int) {
+func handleConnection(conn net.Conn) {
 	defer conn.Close()
+	defer serverWg.Done() // mark this goroutine as done
 
 	address := conn.RemoteAddr().String()
 	connections.Add(address, conn)
