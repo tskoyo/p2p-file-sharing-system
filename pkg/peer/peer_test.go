@@ -6,6 +6,8 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMultipleClientsConnectingToServer(t *testing.T) {
@@ -48,5 +50,5 @@ func TestMultipleClientsConnectingToServer(t *testing.T) {
 	}
 
 	numberOfConnections := len(connections.List())
-	t.
+	assert.Equal(t, numClients, numberOfConnections, "Number of connections should be 6")
 }
