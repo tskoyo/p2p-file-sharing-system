@@ -3,7 +3,6 @@ package client
 import (
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"os"
 )
@@ -22,7 +21,6 @@ func (c *Client) Connect(peerAddress string) error {
 		return err
 	}
 	c.Conn = conn
-	log.Println("[CLIENT]: Connected to server!")
 	return nil
 }
 
