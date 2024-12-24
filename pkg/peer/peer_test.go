@@ -34,7 +34,6 @@ func TestMultipleClientsConnectingToServer(t *testing.T) {
 				return
 			}
 
-			log.Printf("[Client %d] Connected successfully!", clientID)
 			clientErrors <- nil
 		}(i)
 	}
