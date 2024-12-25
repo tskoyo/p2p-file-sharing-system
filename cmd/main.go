@@ -16,6 +16,7 @@ func main() {
 
 	switch *mode {
 	case "server":
+		// stopChan := make(chan struct{})
 		go peer.StartServer(*address)
 	case "client":
 		client := client.NewClient(*address)
