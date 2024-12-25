@@ -12,7 +12,7 @@ import (
 
 func TestMultipleClientsConnectingToServer(t *testing.T) {
 	serverAddress := "localhost:9000"
-	numClients := 5
+	numClients := 2000
 	var wg sync.WaitGroup
 
 	go StartServer(serverAddress)
@@ -38,8 +38,7 @@ func TestMultipleClientsConnectingToServer(t *testing.T) {
 		}(i)
 	}
 
-	wg.Wait()       // wait for all client goroutines to finish
-	serverWg.Wait() // wait for all server-side goroutines to finish
+	wg.Wait()
 	close(clientErrors)
 
 	for err := range clientErrors {
@@ -49,5 +48,5 @@ func TestMultipleClientsConnectingToServer(t *testing.T) {
 	}
 
 	numberOfConnections := len(connections.List())
-	assert.Equal(t, numClients, numberOfConnections, "Number of connections should be 6")
+	assert.Equal(t, numClients, numberOfConnections, "Number of connections should be %d", numClients)
 }

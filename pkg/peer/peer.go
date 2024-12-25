@@ -3,11 +3,14 @@ package peer
 import (
 	"log"
 	"net"
-	"sync"
 )
 
-var connections = NewConnectionPool()
-var serverWg sync.WaitGroup
+// const maxConcurrentConnections = 5
+
+var (
+	// sem         = make(chan struct{}, maxConcurrentConnections)
+	connections = NewConnectionPool()
+)
 
 func StartServer(address string) {
 	listener, err := net.Listen("tcp", address)
@@ -24,32 +27,26 @@ func StartServer(address string) {
 			log.Printf("Connection error: %v", err)
 			continue
 		}
-		serverWg.Add(1)
 		go handleConnection(conn)
 	}
 }
 
 func handleConnection(conn net.Conn) {
-	defer conn.Close()
-	defer serverWg.Done() // mark this goroutine as done
+	buf := make([]byte, 5)
 
-	address := conn.RemoteAddr().String()
-	connections.Add(address, conn)
+	_, err := conn.Read(buf)
+	if err != nil {
+		return
+	}
 
-	// switch connectionType {
-	// case 0: // upload
-	// 	err := receiveFile(conn, "received_file.txt")
-	// 	if err != nil {
-	// 		log.Printf("Error receiving file: %v", err)
-	// 	}
-	// case 1: // download
-	// 	err := sendFile(conn, "received_file.txt")
-	// 	if err != nil {
-	// 		log.Printf("Error sending file: %v", err)
-	// 	}
-	// default:
-	// 	log.Printf("Unknown command: %d", connectionType)
-	// }
+	connections.Add(conn.RemoteAddr().String(), conn)
+
+	handshakeRespMsg := []byte("OK")
+	_, err = conn.Write(handshakeRespMsg)
+
+	if err != nil {
+		return
+	}
 }
 
 // func receiveFile(conn net.Conn, filename string) error {
