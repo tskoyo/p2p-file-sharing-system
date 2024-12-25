@@ -21,6 +21,11 @@ func (c *Client) Connect(peerAddress string) error {
 		return err
 	}
 	c.Conn = conn
+
+	err = c.handshakeWithServer()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -53,5 +58,25 @@ func (c *Client) DownloadFile(filePath string) error {
 	}
 
 	fmt.Printf("File '%s' downloaded successfully\n", filePath)
+	return nil
+}
+
+func (c *Client) handshakeWithServer() error {
+	handhsakeMsg := []byte("HELLO")
+	_, err := c.Conn.Write(handhsakeMsg)
+
+	if err != nil {
+		return err
+	}
+
+	serverRespMsg := make([]byte, 2)
+	_, err = c.Conn.Read(serverRespMsg)
+	if err != nil {
+		return err
+	}
+	if string(serverRespMsg) != "OK" {
+		return fmt.Errorf("unexpected server response")
+	}
+
 	return nil
 }
