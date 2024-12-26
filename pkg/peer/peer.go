@@ -5,12 +5,7 @@ import (
 	"net"
 )
 
-// const maxConcurrentConnections = 5
-
-var (
-	// sem         = make(chan struct{}, maxConcurrentConnections)
-	connections = NewConnectionPool()
-)
+var connections = NewConnectionPool()
 
 func StartServer(address string) {
 	listener, err := net.Listen("tcp", address)
