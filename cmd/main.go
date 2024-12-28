@@ -16,7 +16,12 @@ func main() {
 
 	switch *mode {
 	case "server":
-		go peer.StartServer(*address)
+		readyChan := make(chan error, 1)
+		go peer.StartServer(*address, readyChan)
+
+		if err := <-readyChan; err != nil {
+			log.Fatalf("Failed to start server: %v", err)
+		}
 	case "client":
 		client := client.NewClient(*address)
 		if err := client.Connect(*peerAddress); err != nil {

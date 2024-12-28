@@ -5,7 +5,6 @@ import (
 	"p2p-file-sharing-system/pkg/client"
 	"sync"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -13,13 +12,20 @@ import (
 func TestMultipleClientsConnectingToServer(t *testing.T) {
 	serverAddress := "localhost:9000"
 	numClients := 2000
+
+	readyChan := make(chan error, 1)
+	go StartServer(serverAddress, readyChan)
+
+	err := <-readyChan
+	if err != nil {
+		t.Fatalf("Failed to start server: %v", err)
+	}
+
+	// time.Sleep(2 * time.Second) // Wait for the server to start
+
 	var wg sync.WaitGroup
-
-	go StartServer(serverAddress)
-
-	time.Sleep(2 * time.Second) // Wait for the server to start
-
 	clientErrors := make(chan error, numClients)
+
 	for i := 0; i < numClients; i++ {
 		wg.Add(1)
 		go func(clientID int) {
@@ -30,7 +36,7 @@ func TestMultipleClientsConnectingToServer(t *testing.T) {
 			err := clientNode.Connect(serverAddress)
 			if err != nil {
 				clientErrors <- err
-				log.Printf("[Client %d] Failed to connect: %v", clientID, err)
+				log.Printf("[Client %d] Failed tooo connect: %v", clientID, err)
 				return
 			}
 

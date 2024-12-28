@@ -3,6 +3,7 @@ package client
 import (
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"os"
 )
@@ -26,13 +27,13 @@ func NewClient(address string) *Client {
 }
 
 func (c *Client) Connect(peerAddress string) error {
-	// log.Println("Trying to establish a connection with the server")
-	// time.Sleep(2 * time.Millisecond)
 	for i := 0; i < maxRetries; i++ {
 		conn, err = c.Dialer.Dial(TCP, peerAddress)
 		if err == nil {
 			break
 		}
+
+		log.Printf("Retrying connection to server: %v", err)
 	}
 
 	c.Conn = conn

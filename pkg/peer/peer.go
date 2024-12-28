@@ -7,13 +7,17 @@ import (
 
 var connections = NewConnectionPool()
 
-func StartServer(address string) {
+func StartServer(address string, readyChan chan<- error) {
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatalf("Failed to start server: %v", err)
+		readyChan <- err
+		return
 	}
-	defer listener.Close()
 
+	readyChan <- nil // server is listening successfully
+
+	defer listener.Close()
 	log.Printf("Server listening on %s", address)
 
 	for {
