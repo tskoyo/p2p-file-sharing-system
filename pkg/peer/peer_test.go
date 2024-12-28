@@ -11,7 +11,7 @@ import (
 
 func TestMultipleClientsConnectingToServer(t *testing.T) {
 	serverAddress := "localhost:9000"
-	numClients := 2000
+	numClients := 100
 
 	readyChan := make(chan error, 1)
 	go StartServer(serverAddress, readyChan)

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 )
 
 const maxRetries = 5
@@ -33,6 +34,7 @@ func (c *Client) Connect(peerAddress string) error {
 			break
 		}
 
+		time.Sleep(1 * time.Second * time.Duration(i))
 		log.Printf("Retrying connection to server: %v", err)
 	}
 
