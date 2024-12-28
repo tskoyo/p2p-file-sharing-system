@@ -17,7 +17,7 @@ func TestMultipleClientsConnectingToServer(t *testing.T) {
 
 	go StartServer(serverAddress)
 
-	time.Sleep(1 * time.Second) // Wait for the server to start
+	time.Sleep(2 * time.Second) // Wait for the server to start
 
 	clientErrors := make(chan error, numClients)
 	for i := 0; i < numClients; i++ {

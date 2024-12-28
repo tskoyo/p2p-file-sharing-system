@@ -5,27 +5,44 @@ import (
 	"io"
 	"net"
 	"os"
+	"time"
 )
 
+const maxRetries = 5
+
+var conn net.Conn
+var err error
+
 type Client struct {
-	Conn net.Conn
+	Conn    net.Conn
+	Dialer  Dialer
+	Address string
 }
 
 func NewClient(address string) *Client {
-	return &Client{}
+	return &Client{
+		Dialer:  &NetDialer{},
+		Address: address,
+	}
 }
 
 func (c *Client) Connect(peerAddress string) error {
-	conn, err := net.Dial("tcp", peerAddress)
-	if err != nil {
-		return err
+	// log.Println("Trying to establish a connection with the server")
+	time.Sleep(2 * time.Millisecond)
+	for i := 0; i < maxRetries; i++ {
+		conn, err = c.Dialer.Dial(TCP, peerAddress)
+		if err == nil {
+			break
+		}
 	}
+
 	c.Conn = conn
 
 	err = c.handshakeWithServer()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to handshake with server: %w", err)
 	}
+
 	return nil
 }
 
