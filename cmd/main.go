@@ -9,7 +9,7 @@ import (
 
 func main() {
 	mode := flag.String("mode", "server", "Start as 'server' or 'client'")
-	address := flag.String("address", "localhost:9000", "Address to bind/connect to")
+	address := flag.String("address", "localhost:9000", "Address of the client")
 	peerAddress := flag.String("peer", "localhost:9002", "Address of the peer to connect to")
 	// filePath := flag.String("file", "", "Path to the file to upload (client mode only)")
 	flag.Parse()
