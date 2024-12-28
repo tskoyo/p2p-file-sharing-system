@@ -20,9 +20,9 @@ type Client struct {
 	Address string
 }
 
-func NewClient(address string) *Client {
+func NewClient(dialer Dialer, address string) *Client {
 	return &Client{
-		Dialer:  &NetDialer{},
+		Dialer:  dialer,
 		Address: address,
 	}
 }
@@ -89,6 +89,7 @@ func (c *Client) handshakeWithServer() error {
 	}
 
 	serverRespMsg := make([]byte, 2)
+
 	_, err = c.Conn.Read(serverRespMsg)
 	if err != nil {
 		return err

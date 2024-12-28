@@ -23,7 +23,8 @@ func main() {
 			log.Fatalf("Failed to start server: %v", err)
 		}
 	case "client":
-		client := client.NewClient(*address)
+		dialer := &client.NetDialer{}
+		client := client.NewClient(dialer, *address)
 		if err := client.Connect(*peerAddress); err != nil {
 			log.Fatalf("Failed to connect to server: %v", err)
 		}

@@ -32,7 +32,9 @@ func TestMultipleClientsConnectingToServer(t *testing.T) {
 			defer wg.Done()
 
 			clientAddr := "localhost:0"
-			clientNode := client.NewClient(clientAddr)
+			dialer := &client.NetDialer{}
+
+			clientNode := client.NewClient(dialer, clientAddr)
 			err := clientNode.Connect(serverAddress)
 			if err != nil {
 				clientErrors <- err
