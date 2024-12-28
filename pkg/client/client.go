@@ -5,7 +5,6 @@ import (
 	"io"
 	"net"
 	"os"
-	"time"
 )
 
 const maxRetries = 5
@@ -28,7 +27,7 @@ func NewClient(address string) *Client {
 
 func (c *Client) Connect(peerAddress string) error {
 	// log.Println("Trying to establish a connection with the server")
-	time.Sleep(2 * time.Millisecond)
+	// time.Sleep(2 * time.Millisecond)
 	for i := 0; i < maxRetries; i++ {
 		conn, err = c.Dialer.Dial(TCP, peerAddress)
 		if err == nil {
