@@ -1,4 +1,4 @@
-package peer
+package connectionpool
 
 import (
 	"net"
@@ -21,6 +21,7 @@ func NewConnectionPool() *ConnectionPool {
 func (cp *ConnectionPool) Add(address string, conn net.Conn) {
 	cp.Lock()
 	defer cp.Unlock()
+
 	cp.pool[address] = conn
 }
 
@@ -42,6 +43,7 @@ func (cp *ConnectionPool) List() ConnectionMap {
 	defer cp.Unlock()
 
 	copy := make(map[string]net.Conn, len(cp.pool))
+
 	for address, conn := range cp.pool {
 		copy[address] = conn
 	}

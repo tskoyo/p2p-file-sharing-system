@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"os"
+	connectionpool "p2p-file-sharing-system/pkg/connection_pool"
 	"time"
 )
 
@@ -15,21 +16,19 @@ var conn net.Conn
 var err error
 
 type Client struct {
-	Conn    net.Conn
-	Dialer  Dialer
-	Address string
+	Conn           net.Conn
+	ConnectionPool *connectionpool.ConnectionPool
 }
 
-func NewClient(dialer Dialer, address string) *Client {
+func NewClient(cp *connectionpool.ConnectionPool) *Client {
 	return &Client{
-		Dialer:  dialer,
-		Address: address,
+		ConnectionPool: cp,
 	}
 }
 
 func (c *Client) Connect(peerAddress string) error {
 	for i := 0; i < maxRetries; i++ {
-		conn, err = c.Dialer.Dial(TCP, peerAddress) // TODO: Add support for UDP
+		conn, err = net.Dial("tcp", peerAddress) // TODO: Add support for UDP
 		if err == nil {
 			break
 		}
