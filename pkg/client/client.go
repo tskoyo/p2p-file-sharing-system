@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-const maxRetries = 5
+const maxRetries = 3
 
 var conn net.Conn
 var err error
@@ -29,7 +29,7 @@ func NewClient(dialer Dialer, address string) *Client {
 
 func (c *Client) Connect(peerAddress string) error {
 	for i := 0; i < maxRetries; i++ {
-		conn, err = c.Dialer.Dial(TCP, peerAddress)
+		conn, err = c.Dialer.Dial(TCP, peerAddress) // TODO: Add support for UDP
 		if err == nil {
 			break
 		}
@@ -81,21 +81,21 @@ func (c *Client) DownloadFile(filePath string) error {
 }
 
 func (c *Client) handshakeWithServer() error {
-	handhsakeMsg := []byte("HELLO")
-	_, err := c.Conn.Write(handhsakeMsg)
-
+	handshakeMsg := []byte("HELLO")
+	_, err := c.Conn.Write(handshakeMsg)
+	log.Println("Are we here?")
 	if err != nil {
 		return err
 	}
 
 	serverRespMsg := make([]byte, 2)
-
 	_, err = c.Conn.Read(serverRespMsg)
 	if err != nil {
 		return err
 	}
+
 	if string(serverRespMsg) != "OK" {
-		return fmt.Errorf("unexpected server response")
+		return fmt.Errorf("unexpected server response: %s", string(serverRespMsg))
 	}
 
 	return nil
