@@ -21,8 +21,6 @@ func TestMultipleClientsConnectingToServer(t *testing.T) {
 		t.Fatalf("Failed to start server: %v", err)
 	}
 
-	// time.Sleep(2 * time.Second) // Wait for the server to start
-
 	var wg sync.WaitGroup
 	clientErrors := make(chan error, numClients)
 

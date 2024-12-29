@@ -83,7 +83,6 @@ func (c *Client) DownloadFile(filePath string) error {
 func (c *Client) handshakeWithServer() error {
 	handshakeMsg := []byte("HELLO")
 	_, err := c.Conn.Write(handshakeMsg)
-	log.Println("Are we here?")
 	if err != nil {
 		return err
 	}
