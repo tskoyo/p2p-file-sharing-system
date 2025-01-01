@@ -39,13 +39,28 @@ func main() {
 
 	// select {}
 
-	nodeA, err := peer.NewNode("A", "stun.l.google.com:19302", "5000")
+	nodeAConfig := &peer.NodeConfig{
+		Id:            "A",
+		StunServer:    "stun.l.google.com:19302",
+		ServerAddress: "localhost",
+		ServerPort:    "9000",
+		ClientPort:    "9001",
+	}
+
+	nodeA, err := peer.NewNode(*nodeAConfig)
 	if err != nil {
 		log.Fatalf("Failed to initialize Node A: %v", err)
 	}
 	nodeA.StartServer()
 
-	nodeB, err := peer.NewNode("B", "stun.l.google.com:19302", "5001")
+	nodeBConfig := &peer.NodeConfig{
+		Id:            "B",
+		StunServer:    "stun.l.google.com:19302",
+		ServerAddress: "localhost",
+		ServerPort:    "9002",
+		ClientPort:    "9003",
+	}
+	nodeB, err := peer.NewNode(*nodeBConfig)
 	if err != nil {
 		log.Fatalf("Failed to initialize Node B: %v", err)
 	}
@@ -53,12 +68,13 @@ func main() {
 
 	time.Sleep(2 * time.Second)
 
-	err = nodeB.ConnectToPeer(nodeA.PublicAddress)
+	log.Println("Connecting nodes...")
+	err = nodeB.ConnectToPeer(nodeA.PublicAddress, nodeA.Server.Port)
 	if err != nil {
 		log.Fatalf("Failed to connect to peer: %v", err)
 	}
 
-	err = nodeA.ConnectToPeer(nodeB.PublicAddress)
+	err = nodeA.ConnectToPeer(nodeB.PublicAddress, nodeB.Server.Port)
 	if err != nil {
 		log.Fatalf("Failed to connect to peer: %v", err)
 	}

@@ -20,15 +20,15 @@ type Client struct {
 	ConnectionPool *connectionpool.ConnectionPool
 }
 
-func NewClient(cp *connectionpool.ConnectionPool) *Client {
+func NewClient(connectionPool *connectionpool.ConnectionPool) *Client {
 	return &Client{
-		ConnectionPool: cp,
+		ConnectionPool: connectionPool,
 	}
 }
 
-func (c *Client) Connect(peerAddress string) error {
+func (c *Client) Connect(peerAddress string, port string) error {
 	for i := 0; i < maxRetries; i++ {
-		conn, err = net.Dial("tcp", peerAddress) // TODO: Add support for UDP
+		conn, err = net.Dial("tcp", ":"+port)
 		if err == nil {
 			break
 		}
@@ -37,6 +37,7 @@ func (c *Client) Connect(peerAddress string) error {
 		log.Printf("Retrying connection to server: %v", err)
 	}
 
+	log.Println("Successfully connected to server on port: ", port)
 	c.Conn = conn
 
 	err = c.handshakeWithServer()

@@ -12,20 +12,20 @@ import (
 
 type Server struct {
 	connectionPool *connectionpool.ConnectionPool
+	Address        string
 	Port           string
 }
 
-func NewServer(connectionPool *connectionpool.ConnectionPool, serverPort string) *Server {
+func NewServer(connectionPool *connectionpool.ConnectionPool, address string, port string) *Server {
 	return &Server{
 		connectionPool: connectionPool,
-		Port:           serverPort,
+		Address:        address,
+		Port:           port,
 	}
 }
 
-// var connections = connectionpool.NewConnectionPool()
-
-func (s *Server) Start(address string, readyChan chan<- error) {
-	listener, err := net.Listen("tcp", ":"+s.Port)
+func (s *Server) Start(readyChan chan<- error) {
+	listener, err := net.Listen("tcp", s.Address+":"+s.Port)
 	if err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 		readyChan <- err
@@ -35,7 +35,7 @@ func (s *Server) Start(address string, readyChan chan<- error) {
 	readyChan <- nil // server is listening successfully
 
 	defer listener.Close()
-	log.Printf("Server listening on %s", ":"+s.Port)
+	log.Printf("Server listening on %s", s.Address+s.Port)
 
 	for {
 		conn, err := listener.Accept()

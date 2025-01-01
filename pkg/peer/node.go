@@ -18,26 +18,34 @@ type Node struct {
 	Client         *client.Client
 }
 
-func NewNode(id, stunServer string, serverPort string) (*Node, error) {
-	publicAddress, err := discoverPublicAddress(stunServer)
+type NodeConfig struct {
+	Id            string
+	StunServer    string
+	ServerAddress string
+	ServerPort    string
+	ClientPort    string
+}
+
+func NewNode(config NodeConfig) (*Node, error) {
+	publicAddress, err := discoverPublicAddress(config.StunServer)
 	if err != nil {
 		log.Fatalf("Failed to discover public address: %v", err)
 		return nil, err
 	}
 
-	formattedPublicAddress, err := formatPublicAddress(publicAddress, serverPort)
+	formattedPublicAddress, err := formatPublicAddress(publicAddress, config.ServerPort)
 	if err != nil {
 		return nil, fmt.Errorf("failed to format public address: %w", err)
 	}
 
-	log.Printf("Node %s public address: %s", id, formattedPublicAddress)
+	log.Printf("Node %s public address: %s", config.Id, formattedPublicAddress)
 
 	connectionPool := connectionpool.NewConnectionPool()
-	server := server.NewServer(connectionPool, serverPort)
+	server := server.NewServer(connectionPool, config.ServerAddress, config.ServerPort)
 	client := client.NewClient(connectionPool)
 
 	return &Node{
-		ID:             id,
+		ID:             config.Id,
 		PublicAddress:  formattedPublicAddress,
 		ConnectionPool: connectionPool,
 		Server:         server,
@@ -47,15 +55,15 @@ func NewNode(id, stunServer string, serverPort string) (*Node, error) {
 
 func (n *Node) StartServer() {
 	readyChan := make(chan error, 1)
-	go n.Server.Start("localhost:9000", readyChan)
+	go n.Server.Start(readyChan)
 
 	if err := <-readyChan; err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
 
-func (n *Node) ConnectToPeer(peerAddress string) error {
-	if err := n.Client.Connect(n.PublicAddress); err != nil {
+func (n *Node) ConnectToPeer(peerAddress string, port string) error {
+	if err := n.Client.Connect(peerAddress, port); err != nil {
 		return fmt.Errorf("Failed to connect to peer: %v", err)
 	}
 
