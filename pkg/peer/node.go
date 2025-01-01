@@ -3,7 +3,6 @@ package peer
 import (
 	"fmt"
 	"log"
-	"net"
 	"p2p-file-sharing-system/pkg/client"
 	connectionpool "p2p-file-sharing-system/pkg/connection_pool"
 	"p2p-file-sharing-system/pkg/server"
@@ -33,12 +32,12 @@ func NewNode(config NodeConfig) (*Node, error) {
 		return nil, err
 	}
 
-	formattedPublicAddress, err := formatPublicAddress(publicAddress, config.ServerPort)
+	// formattedPublicAddress, err := formatPublicAddress(publicAddress, config.ServerPort)
 	if err != nil {
 		return nil, fmt.Errorf("failed to format public address: %w", err)
 	}
 
-	log.Printf("Node %s public address: %s", config.Id, formattedPublicAddress)
+	log.Printf("Node %s public address: %s", config.Id, publicAddress)
 
 	connectionPool := connectionpool.NewConnectionPool()
 	server := server.NewServer(connectionPool, config.ServerAddress, config.ServerPort)
@@ -46,7 +45,7 @@ func NewNode(config NodeConfig) (*Node, error) {
 
 	return &Node{
 		ID:             config.Id,
-		PublicAddress:  formattedPublicAddress,
+		PublicAddress:  publicAddress,
 		ConnectionPool: connectionPool,
 		Server:         server,
 		Client:         client,
@@ -77,12 +76,4 @@ func discoverPublicAddress(stunServer string) (string, error) {
 		return "", fmt.Errorf("error discovering public address: %w", err)
 	}
 	return publicAddress, nil
-}
-
-func formatPublicAddress(publicAddress, serverPort string) (string, error) {
-	host, _, err := net.SplitHostPort(publicAddress)
-	if err != nil {
-		return "", fmt.Errorf("error splitting public address: %w", err)
-	}
-	return fmt.Sprintf("%s:%s", host, serverPort), nil
 }
