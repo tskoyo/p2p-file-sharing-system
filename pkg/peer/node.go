@@ -70,10 +70,6 @@ func (n *Node) ConnectToPeer(peerAddress string, port string) error {
 	return nil
 }
 
-func (n *Node) ListConnections() {
-	log.Printf("Connections for %v: %v", n.ID, n.ConnectionPool.List())
-}
-
 func discoverPublicAddress(stunServer string) (string, error) {
 	stunClient := stun.NewClient(stunServer)
 	publicAddress, err := stunClient.DiscoverPublicAddress()

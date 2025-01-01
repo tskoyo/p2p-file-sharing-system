@@ -78,7 +78,4 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to peer: %v", err)
 	}
-
-	nodeA.ListConnections()
-	nodeB.ListConnections()
 }
