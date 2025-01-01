@@ -1,4 +1,7 @@
-FROM golang:1.23.3
+FROM golang:1.23.4
+
+# Install air for live reload
+RUN go install github.com/air-verse/air@latest
 
 WORKDIR /app
 
@@ -16,4 +19,4 @@ RUN go build -o /usr/local/bin/app ./cmd
 
 EXPOSE 8080
 
-CMD ["app"]
+CMD ["sh", "-c", "air -c .air.toml && ./app"]
