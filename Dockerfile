@@ -15,7 +15,7 @@ RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/i
 
 COPY . .
 
-RUN go build -o /usr/local/bin/app ./cmd
+RUN go build -o tmp/main ./cmd
 
 EXPOSE 8080
 

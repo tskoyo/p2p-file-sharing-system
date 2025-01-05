@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  server:
+    image: p2p-dev-env
+    volumes:
+      - .:/app
+    working_dir: /app
+    command:
+      [
+        "./tmp/main",
+        "--command",
+        "start-server",
+        "--id",
+        "Server1",
+        "--server-port",
+        "9000",
+      ]
+
+  client1:
+    image: p2p-dev-env
+    volumes:
+      - .:/app
+    working_dir: /app
+    command:
+      [
+        "./tmp/main",
+        "--command",
+        "connect-to-peer",
+        "--id",
+        "Client1",
+        "--client-port",
+        "9001",
+        "--peer-address",
+        "server",
+        "--peer-port",
+        "9000",
+      ]
+
+  client2:
+    image: p2p-dev-env
+    volumes:
+      - .:/app
+    working_dir: /app
+    command:
+      [
+        "./tmp/main",
+        "--command",
+        "connect-to-peer",
+        "--id",
+        "Client2",
+        "--client-port",
+        "9002",
+        "--peer-address",
+        "server:9000",
+        "--peer-port",
+        "9000",
+      ]
