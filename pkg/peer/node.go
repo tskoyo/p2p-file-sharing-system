@@ -32,7 +32,6 @@ func NewNode(config NodeConfig) (*Node, error) {
 		return nil, err
 	}
 
-	// formattedPublicAddress, err := formatPublicAddress(publicAddress, config.ServerPort)
 	if err != nil {
 		return nil, fmt.Errorf("failed to format public address: %w", err)
 	}

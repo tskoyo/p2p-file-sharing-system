@@ -32,7 +32,8 @@ func (s *Server) Start(readyChan chan<- error) {
 	readyChan <- nil // server is listening successfully
 
 	defer listener.Close()
-	log.Printf("Server listening on %s", s.Address+s.Port)
+	log.Println("TESTING FROM SERVER")
+	log.Printf("Server listening on %s", s.Address+":"+s.Port)
 
 	for {
 		conn, err := listener.Accept()

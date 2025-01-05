@@ -27,8 +27,9 @@ func NewClient(connectionPool *connectionpool.ConnectionPool) *Client {
 }
 
 func (c *Client) Connect(peerAddress string, port string) error {
+	log.Printf("trying to connect to %s on port %s", peerAddress, port)
 	for i := 0; i < maxRetries; i++ {
-		conn, err = net.Dial("tcp", ":"+port)
+		conn, err = net.Dial("tcp", peerAddress+":"+port)
 		if err == nil {
 			break
 		}
@@ -37,7 +38,10 @@ func (c *Client) Connect(peerAddress string, port string) error {
 		log.Printf("Retrying connection to server: %v", err)
 	}
 
-	log.Println("Successfully connected to server on port: ", port)
+	if err != nil {
+		return fmt.Errorf("failed to connect to server XD: %w", err)
+	}
+
 	c.Conn = conn
 
 	err = c.handshakeWithServer()
@@ -83,6 +87,7 @@ func (c *Client) DownloadFile(filePath string) error {
 func (c *Client) handshakeWithServer() error {
 	handshakeMsg := []byte("HELLO")
 	_, err := c.Conn.Write(handshakeMsg)
+	log.Println("Are we here?")
 	if err != nil {
 		return err
 	}
