@@ -32,10 +32,6 @@ func NewNode(config NodeConfig) (*Node, error) {
 		return nil, err
 	}
 
-	if err != nil {
-		return nil, fmt.Errorf("failed to format public address: %w", err)
-	}
-
 	log.Printf("Node %s public address: %s", config.Id, publicAddress)
 
 	connectionPool := connectionpool.NewConnectionPool()
