@@ -1,26 +1,30 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"log"
 	"p2p-file-sharing-system/pkg/peer"
+	"strconv"
 )
 
 func main() {
-	// command := flag.String("command", "start-server", "Command to execute: start-server or connect-to-peer")
 	id := flag.String("id", "ABC", "Id of the node")
-	// peerAddress := flag.String("peer-address", "localhost", "Address of the peer to connect to")
-	// peerPort := flag.String("peer-port", "9002", "Port of the peer to connect to")
+	peerPort := flag.String("peer-port", "9002", "Port of the peer to connect to")
 
 	flag.Parse()
 
-	nodeAConfig := &peer.NodeConfig{
-		ID: *id,
+	port, err := strconv.Atoi(*peerPort)
+
+	if err != nil {
+		panic(err)
 	}
 
-	ctx := context.Background()
-	nodeA, err := peer.NewNode(ctx, *nodeAConfig)
+	nodeAConfig := &peer.NodeConfig{
+		ID:   *id,
+		Port: port,
+	}
+
+	nodeA, err := peer.NewNode(*nodeAConfig)
 	if err != nil {
 		log.Fatalf("Failed to initialize Node A: %v", err)
 	}
