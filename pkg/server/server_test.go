@@ -1,16 +1,32 @@
 package server
 
+// import (
+// 	"log"
+// 	"p2p-file-sharing-system/pkg/client"
+// 	connectionpool "p2p-file-sharing-system/pkg/connection_pool"
+// 	"p2p-file-sharing-system/pkg/peer"
+// 	"sync"
+// 	"testing"
+
+// 	"github.com/stretchr/testify/assert"
+// )
+
 // func TestMultipleClientsConnectingToServer(t *testing.T) {
-// 	serverAddress := "localhost:9000"
+// 	node, err := peer.NewNode(peer.NodeConfig{
+// 		ID:   "test-node",
+// 		Port: 9001,
+// 	})
+// 	assert.Nil(t, err, "Error should be nil")
+
 // 	numClients := 100
 
-// 	connectionPool := NewConnectionPool()
-// 	server := NewServer(connectionPool, "9000")
+// 	connectionPool := connectionpool.NewConnectionPool()
+// 	server := NewServer(connectionPool, node.Host.Addrs()[0], 9001)
 
 // 	readyChan := make(chan error, 1)
-// 	go StartServer(serverAddress, readyChan)
+// 	go server.Start(readyChan)
 
-// 	err := <-readyChan
+// 	err = <-readyChan
 // 	if err != nil {
 // 		t.Fatalf("Failed to start server: %v", err)
 // 	}

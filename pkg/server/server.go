@@ -4,16 +4,19 @@ import (
 	"log"
 	"net"
 	connectionpool "p2p-file-sharing-system/pkg/connection_pool"
+	"strconv"
 	"time"
+
+	"github.com/multiformats/go-multiaddr"
 )
 
 type Server struct {
 	connectionPool *connectionpool.ConnectionPool
-	Address        string
-	Port           string
+	Address        multiaddr.Multiaddr
+	Port           int
 }
 
-func NewServer(connectionPool *connectionpool.ConnectionPool, address string, port string) *Server {
+func NewServer(connectionPool *connectionpool.ConnectionPool, address multiaddr.Multiaddr, port int) *Server {
 	return &Server{
 		connectionPool: connectionPool,
 		Address:        address,
@@ -22,7 +25,7 @@ func NewServer(connectionPool *connectionpool.ConnectionPool, address string, po
 }
 
 func (s *Server) Start(readyChan chan<- error) {
-	listener, err := net.Listen("tcp", s.Address+":"+s.Port)
+	listener, err := net.Listen("tcp", s.Address.String()+":"+strconv.Itoa(s.Port))
 	if err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 		readyChan <- err
@@ -32,8 +35,7 @@ func (s *Server) Start(readyChan chan<- error) {
 	readyChan <- nil // server is listening successfully
 
 	defer listener.Close()
-	log.Println("TESTING FROM SERVER")
-	log.Printf("Server listening on %s", s.Address+":"+s.Port)
+	log.Printf("Server listening on %s", s.Address.String()+":"+strconv.Itoa(s.Port))
 
 	for {
 		conn, err := listener.Accept()
