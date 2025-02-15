@@ -1,16 +1,18 @@
 package peer
 
 import (
+	"context"
 	"crypto/rand"
 	"fmt"
 	"io"
 	"log"
+	"time"
 
-	libp2p "github.com/libp2p/go-libp2p"
-	"github.com/multiformats/go-multiaddr"
-
+	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/host"
+	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/multiformats/go-multiaddr"
 )
 
 type Node struct {
@@ -24,6 +26,8 @@ type NodeConfig struct {
 	ID   string
 	Port int
 }
+
+const maxRetries = 3
 
 func NewNode(config NodeConfig) (*Node, error) {
 	h, err := makeHost(config.Port, rand.Reader)
@@ -40,6 +44,37 @@ func NewNode(config NodeConfig) (*Node, error) {
 		ID:   config.ID,
 		Host: h,
 	}, nil
+}
+
+func (n *Node) Connect(multiAddr string) error {
+	peerMultiAddr, err := multiaddr.NewMultiaddr(multiAddr)
+	if err != nil {
+		return fmt.Errorf("Invalid multiaddress: %w", err)
+	}
+
+	peerInfo, err := peer.AddrInfoFromP2pAddr(peerMultiAddr)
+	if err != nil {
+		return fmt.Errorf("Failed to parse peer address: %w", err)
+	}
+
+	log.Printf("%s attempting to connet to %s", n.Host.ID(), multiAddr)
+
+	var lastErr error
+	// Connect with retries
+	for i := 0; i < maxRetries; i++ {
+		err := n.Host.Connect(context.Background(), *peerInfo)
+		if err != nil {
+			lastErr = err
+			log.Printf("Connection attempt %d failed: %v", i+1, err)
+			time.Sleep(time.Duration(i+1) * time.Second)
+			continue
+		}
+
+		log.Printf("Successfully connected after %d attempts", i+1)
+		return nil
+	}
+
+	return fmt.Errorf("Failed to connect to peer after %d attemtps: %w", maxRetries, lastErr)
 }
 
 func makeHost(port int, randomness io.Reader) (host.Host, error) {

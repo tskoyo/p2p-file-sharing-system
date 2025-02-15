@@ -100,35 +100,3 @@ func handleConnection(conn net.Conn) {
 		return
 	}
 }
-
-// func receiveFile(conn net.Conn, filename string) error {
-// 	file, err := os.Create(filename)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to open file: %w", err)
-// 	}
-// 	defer file.Close()
-
-// 	// Use io.Copy to copy remaining data from the conn
-// 	_, err = io.Copy(file, conn)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to copy data to file: %w", err)
-// 	}
-
-// 	return nil
-// }
-
-// func sendFile(conn net.Conn, filename string) error {
-// 	file, err := os.Open(filename)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to open file: %w", err)
-// 	}
-// 	defer file.Close()
-
-// 	_, err = io.Copy(conn, file)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to send file: %w", err)
-// 	}
-
-// 	log.Printf("File '%s' sent successfully", filename)
-// 	return nil
-// }
