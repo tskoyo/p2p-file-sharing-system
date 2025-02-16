@@ -2,8 +2,8 @@ package peer
 
 import (
 	"fmt"
-	"p2p-file-sharing-system/pkg/helper"
-	"p2p-file-sharing-system/pkg/types"
+	"p2p-file-sharing-system/helper"
+	"p2p-file-sharing-system/types"
 	"sync"
 	"testing"
 

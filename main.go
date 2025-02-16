@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"log"
-	"p2p-file-sharing-system/pkg/peer"
-	"p2p-file-sharing-system/pkg/types"
+	"p2p-file-sharing-system/peer"
+	"p2p-file-sharing-system/types"
 	"strconv"
 )
 

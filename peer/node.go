@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"p2p-file-sharing-system/pkg/helper"
-	"p2p-file-sharing-system/pkg/types"
+	"p2p-file-sharing-system/helper"
+	"p2p-file-sharing-system/types"
 	"time"
 
 	"github.com/libp2p/go-libp2p"

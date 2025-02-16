@@ -3,7 +3,7 @@ package server
 import (
 	"log"
 	"net"
-	connectionpool "p2p-file-sharing-system/pkg/connection_pool"
+	connectionpool "p2p-file-sharing-system/connection_pool"
 	"strconv"
 	"time"
 
