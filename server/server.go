@@ -3,7 +3,6 @@ package server
 import (
 	"log"
 	"net"
-	connectionpool "p2p-file-sharing-system/connection_pool"
 	"strconv"
 	"time"
 
@@ -11,16 +10,14 @@ import (
 )
 
 type Server struct {
-	connectionPool *connectionpool.ConnectionPool
-	Address        multiaddr.Multiaddr
-	Port           int
+	Address multiaddr.Multiaddr
+	Port    int
 }
 
-func NewServer(connectionPool *connectionpool.ConnectionPool, address multiaddr.Multiaddr, port int) *Server {
+func NewServer(address multiaddr.Multiaddr, port int) *Server {
 	return &Server{
-		connectionPool: connectionPool,
-		Address:        address,
-		Port:           port,
+		Address: address,
+		Port:    port,
 	}
 }
 
@@ -43,7 +40,6 @@ func (s *Server) Start(readyChan chan<- error) {
 			log.Printf("Connection error: %v", err)
 			continue
 		}
-		s.connectionPool.Add(conn.RemoteAddr().String(), conn)
 		go handleConnection(conn)
 	}
 }

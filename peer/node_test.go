@@ -13,13 +13,13 @@ import (
 
 func TestNewNode_Succes(t *testing.T) {
 	config := types.NodeConfig{
-		ID:   "test-node",
+		ID:   "success-node",
 		Port: 9001,
 	}
 
 	node, err := NewNode(config)
 
-	assert.NoError(t, err, "Connect should succeed")
+	require.NoError(t, err)
 
 	defer node.Host.Close()
 
@@ -29,7 +29,7 @@ func TestNewNode_Succes(t *testing.T) {
 
 func TestNewNode_WithInvalidPort(t *testing.T) {
 	config := types.NodeConfig{
-		ID:   "test-node",
+		ID:   "invalid-node",
 		Port: -1,
 	}
 
@@ -40,39 +40,25 @@ func TestNewNode_WithInvalidPort(t *testing.T) {
 
 func TestNewNode_PortConflict(t *testing.T) {
 	config := types.NodeConfig{
-		ID:   "test-node",
+		ID:   "conflict-node",
 		Port: 9001,
 	}
 
 	node1, err := NewNode(config)
 
-	assert.NoError(t, err, "Connect should succeed")
+	require.NoError(t, err)
 
 	defer node1.Host.Close()
 
-	_, err = NewNode(config)
+	node2, err := NewNode(config)
 
-	assert.NoError(t, err, "Connect should succeed")
-}
-
-func TestConnect_Success(t *testing.T) {
-	node1Config := helper.BuildNodeConfig("peer-1", 9001)
-	node2Config := helper.BuildNodeConfig("peer-2", 9002)
-
-	node1, err := NewNode(node1Config)
 	require.NoError(t, err)
 
-	node2, err := NewNode(node2Config)
-	require.NoError(t, err)
-
-	node1MultiAddr := node1.Host.Addrs()[0].String() + "/p2p/" + node1.Host.ID().String()
-
-	err = node2.Connect(node1MultiAddr)
-	require.NoError(t, err)
+	defer node2.Host.Close()
 }
 
 func TestConnect_MultipleClients(t *testing.T) {
-	numClients := 20
+	numClients := 8
 	var wg sync.WaitGroup
 	clientErrors := make(chan error, numClients)
 
@@ -82,7 +68,7 @@ func TestConnect_MultipleClients(t *testing.T) {
 
 	node1MultiAddr := node1.Host.Addrs()[0].String() + "/p2p/" + node1.Host.ID().String()
 
-	for i := 1; i <= 8; i++ {
+	for i := 1; i <= numClients; i++ {
 		wg.Add(1)
 
 		go func(clientId int) {

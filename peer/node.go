@@ -8,7 +8,6 @@ import (
 	"log"
 	"p2p-file-sharing-system/helper"
 	"p2p-file-sharing-system/types"
-	"time"
 
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p/core/crypto"
@@ -22,10 +21,6 @@ type Node struct {
 	Config types.NodeConfig
 	Host   host.Host
 }
-
-const maxRetries = 3
-const baseDelay = 1 * time.Second
-const maxDelay = 10 * time.Second
 
 func NewNode(config types.NodeConfig) (*Node, error) {
 	h, err := makeHost(config.Port, rand.Reader)
@@ -58,27 +53,13 @@ func (n *Node) Connect(multiAddr string) error {
 
 	helper.PrintInfo(fmt.Sprintf("%s attempting to connet to %s", n.Host.ID(), multiAddr))
 
-	var lastErr error
-	for attempt := 0; attempt < maxRetries; attempt++ {
-		if err := n.Host.Connect(context.Background(), *peerInfo); err != nil {
-			lastErr = err
-			helper.PrintError(fmt.Sprintf("Connection attempt %d failed: %v", attempt+1, err))
-			delay := baseDelay * time.Duration(1<<attempt)
-
-			if delay > maxDelay {
-				delay = maxDelay
-			}
-
-			helper.PrintInfo(fmt.Sprintf("Retrying in %v...", delay))
-			time.Sleep(delay)
-			continue
-		}
-
-		helper.PrintSuccess(fmt.Sprintf("Successfully connected after %d attempts", attempt+1))
-		return nil
+	if err := n.Host.Connect(context.Background(), *peerInfo); err != nil {
+		helper.PrintError(fmt.Sprintf("Failed to connect to peer: %s", err))
+		return fmt.Errorf("Failed to connect to peer")
 	}
 
-	return fmt.Errorf("Failed to connect to peer after %d attemtps: %w", maxRetries, lastErr)
+	helper.PrintSuccess(fmt.Sprintf("%s successfully connected to: %s", n.Host.Network().LocalPeer(), multiAddr))
+	return nil
 }
 
 func makeHost(port int, randomness io.Reader) (host.Host, error) {
