@@ -6,43 +6,42 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"p2p-file-sharing-system/pkg/helper"
+	"p2p-file-sharing-system/pkg/types"
 	"time"
 
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/host"
+
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/multiformats/go-multiaddr"
 )
 
 type Node struct {
-	ID   string
-	Host host.Host
-	// DHT  *dht.IpfsDHT
-	// Discovery *discovery.RoutingDiscovery
-}
-
-type NodeConfig struct {
-	ID   string
-	Port int
+	Config types.NodeConfig
+	Host   host.Host
 }
 
 const maxRetries = 3
+const baseDelay = 1 * time.Second
+const maxDelay = 10 * time.Second
 
-func NewNode(config NodeConfig) (*Node, error) {
+func NewNode(config types.NodeConfig) (*Node, error) {
 	h, err := makeHost(config.Port, rand.Reader)
 	if err != nil {
+		helper.PrintError("Failed to create libp2p host:")
 		return nil, fmt.Errorf("failed to create libp2p host: %s", err)
 	}
 
-	log.Printf("Node %s started with ID: %s\n", config.ID, h.ID().String())
+	helper.PrintInfo(fmt.Sprintf("Node %s started with ID: %s\n", config.ID, h.ID().String()))
 	for _, addr := range h.Addrs() {
 		log.Printf("Listening on: %s\n", addr)
 	}
 
 	return &Node{
-		ID:   config.ID,
-		Host: h,
+		Config: config,
+		Host:   h,
 	}, nil
 }
 
@@ -57,20 +56,25 @@ func (n *Node) Connect(multiAddr string) error {
 		return fmt.Errorf("Failed to parse peer address: %w", err)
 	}
 
-	log.Printf("%s attempting to connet to %s", n.Host.ID(), multiAddr)
+	helper.PrintInfo(fmt.Sprintf("%s attempting to connet to %s", n.Host.ID(), multiAddr))
 
 	var lastErr error
-	// Connect with retries
-	for i := 0; i < maxRetries; i++ {
-		err := n.Host.Connect(context.Background(), *peerInfo)
-		if err != nil {
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		if err := n.Host.Connect(context.Background(), *peerInfo); err != nil {
 			lastErr = err
-			log.Printf("Connection attempt %d failed: %v", i+1, err)
-			time.Sleep(time.Duration(i+1) * time.Second)
+			helper.PrintError(fmt.Sprintf("Connection attempt %d failed: %v", attempt+1, err))
+			delay := baseDelay * time.Duration(1<<attempt)
+
+			if delay > maxDelay {
+				delay = maxDelay
+			}
+
+			helper.PrintInfo(fmt.Sprintf("Retrying in %v...", delay))
+			time.Sleep(delay)
 			continue
 		}
 
-		log.Printf("Successfully connected after %d attempts", i+1)
+		helper.PrintSuccess(fmt.Sprintf("Successfully connected after %d attempts", attempt+1))
 		return nil
 	}
 

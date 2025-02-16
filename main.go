@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"p2p-file-sharing-system/pkg/peer"
+	"p2p-file-sharing-system/pkg/types"
 	"strconv"
 )
 
@@ -19,7 +20,7 @@ func main() {
 		panic(err)
 	}
 
-	nodeAConfig := &peer.NodeConfig{
+	nodeAConfig := &types.NodeConfig{
 		ID:   *id,
 		Port: port,
 	}
@@ -29,7 +30,7 @@ func main() {
 		log.Fatalf("Failed to initialize Node A: %v", err)
 	}
 
-	log.Println("Node id: ", nodeA.ID)
+	log.Println("Node id: ", nodeA.Config.ID)
 
 	// switch *command {
 	// case "start-server":

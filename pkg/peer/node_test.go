@@ -1,6 +1,10 @@
 package peer
 
 import (
+	"fmt"
+	"p2p-file-sharing-system/pkg/helper"
+	"p2p-file-sharing-system/pkg/types"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,7 +12,7 @@ import (
 )
 
 func TestNewNode_Succes(t *testing.T) {
-	config := NodeConfig{
+	config := types.NodeConfig{
 		ID:   "test-node",
 		Port: 9001,
 	}
@@ -19,12 +23,12 @@ func TestNewNode_Succes(t *testing.T) {
 
 	defer node.Host.Close()
 
-	assert.Equal(t, node.ID, config.ID)
+	assert.Equal(t, node.Config.ID, config.ID)
 	assert.NotNil(t, node.Host, "Host should not be nil")
 }
 
 func TestNewNode_WithInvalidPort(t *testing.T) {
-	config := NodeConfig{
+	config := types.NodeConfig{
 		ID:   "test-node",
 		Port: -1,
 	}
@@ -35,7 +39,7 @@ func TestNewNode_WithInvalidPort(t *testing.T) {
 }
 
 func TestNewNode_PortConflict(t *testing.T) {
-	config := NodeConfig{
+	config := types.NodeConfig{
 		ID:   "test-node",
 		Port: 9001,
 	}
@@ -52,17 +56,8 @@ func TestNewNode_PortConflict(t *testing.T) {
 }
 
 func TestConnect_Success(t *testing.T) {
-	node1PortId := 9001
-	node2PortId := 9003
-
-	node1Config := NodeConfig{
-		ID:   "peer-1",
-		Port: node1PortId,
-	}
-	node2Config := NodeConfig{
-		ID:   "peer-2",
-		Port: node2PortId,
-	}
+	node1Config := helper.BuildNodeConfig("peer-1", 9001)
+	node2Config := helper.BuildNodeConfig("peer-2", 9002)
 
 	node1, err := NewNode(node1Config)
 	require.NoError(t, err)
@@ -71,14 +66,43 @@ func TestConnect_Success(t *testing.T) {
 	require.NoError(t, err)
 
 	node1MultiAddr := node1.Host.Addrs()[0].String() + "/p2p/" + node1.Host.ID().String()
-	require.NoError(t, err)
 
 	err = node2.Connect(node1MultiAddr)
 	require.NoError(t, err)
+}
 
-	connections := node1.Host.Network().ConnsToPeer(node2.Host.ID())
+func TestConnect_MultipleClients(t *testing.T) {
+	numClients := 20
+	var wg sync.WaitGroup
+	clientErrors := make(chan error, numClients)
 
-	for _, v := range connections {
-		t.Logf("address id: %t", v.ID() == node2.Host.ID().String())
+	node1Config := helper.BuildNodeConfig("peer-1", 9001)
+	node1, err := NewNode(node1Config)
+	require.NoError(t, err)
+
+	node1MultiAddr := node1.Host.Addrs()[0].String() + "/p2p/" + node1.Host.ID().String()
+
+	for i := 1; i <= 8; i++ {
+		wg.Add(1)
+
+		go func(clientId int) {
+			defer wg.Done()
+
+			clientNodeConfig := helper.BuildNodeConfig(fmt.Sprintf("client-node-%d", clientId), 9001+clientId)
+			clientNode, err := NewNode(clientNodeConfig)
+			require.NoError(t, err)
+
+			err = clientNode.Connect(node1MultiAddr)
+			require.NoError(t, err)
+
+			clientErrors <- nil
+		}(i)
+	}
+
+	wg.Wait()
+	close(clientErrors)
+
+	for err := range clientErrors {
+		require.NoError(t, err)
 	}
 }
