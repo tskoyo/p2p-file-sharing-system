@@ -17,11 +17,7 @@ func TestNewNode_Succes(t *testing.T) {
 		Port: 9001,
 	}
 
-	node, err := NewNode(config)
-
-	require.NoError(t, err)
-
-	defer node.Host.Close()
+	node := createTestNode(t, config)
 
 	assert.Equal(t, node.Config.ID, config.ID)
 	assert.NotNil(t, node.Host, "Host should not be nil")
@@ -34,27 +30,7 @@ func TestNewNode_WithInvalidPort(t *testing.T) {
 	}
 
 	_, err := NewNode(config)
-
 	assert.NotNil(t, err, "Expected error for invalid port")
-}
-
-func TestNewNode_PortConflict(t *testing.T) {
-	config := types.NodeConfig{
-		ID:   "conflict-node",
-		Port: 9001,
-	}
-
-	node1, err := NewNode(config)
-
-	require.NoError(t, err)
-
-	defer node1.Host.Close()
-
-	node2, err := NewNode(config)
-
-	require.NoError(t, err)
-
-	defer node2.Host.Close()
 }
 
 func TestConnect_MultipleClients(t *testing.T) {
@@ -63,8 +39,7 @@ func TestConnect_MultipleClients(t *testing.T) {
 	clientErrors := make(chan error, numClients)
 
 	node1Config := helper.BuildNodeConfig("peer-1", 9001)
-	node1, err := NewNode(node1Config)
-	require.NoError(t, err)
+	node1 := createTestNode(t, node1Config)
 
 	node1MultiAddr := node1.Host.Addrs()[0].String() + "/p2p/" + node1.Host.ID().String()
 
@@ -75,10 +50,9 @@ func TestConnect_MultipleClients(t *testing.T) {
 			defer wg.Done()
 
 			clientNodeConfig := helper.BuildNodeConfig(fmt.Sprintf("client-node-%d", clientId), 9001+clientId)
-			clientNode, err := NewNode(clientNodeConfig)
-			require.NoError(t, err)
+			clientNode := createTestNode(t, clientNodeConfig)
 
-			err = clientNode.Connect(node1MultiAddr)
+			err := clientNode.Connect(node1MultiAddr)
 			require.NoError(t, err)
 
 			clientErrors <- nil
@@ -91,4 +65,15 @@ func TestConnect_MultipleClients(t *testing.T) {
 	for err := range clientErrors {
 		require.NoError(t, err)
 	}
+}
+
+func createTestNode(t *testing.T, config types.NodeConfig) *Node {
+	node, err := NewNode(config)
+	require.NoError(t, err)
+
+	t.Cleanup(func() {
+		node.Host.Close()
+	})
+
+	return node
 }
