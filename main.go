@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"p2p-file-sharing-system/helper"
 	"p2p-file-sharing-system/peer"
 	"p2p-file-sharing-system/types"
@@ -51,6 +52,7 @@ func main() {
 		}
 	default:
 		log.Fatalf("Unknown command: %s. Use 'start-server' or 'connect-to-peer'.", *command)
+		os.Exit(1)
 	}
 
 	select {}
