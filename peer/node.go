@@ -12,6 +12,7 @@ import (
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/host"
+	"github.com/libp2p/go-libp2p/p2p/muxer/yamux"
 
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/multiformats/go-multiaddr"
@@ -53,6 +54,11 @@ func (n *Node) Connect(multiAddr string) error {
 
 	helper.PrintInfo(fmt.Sprintf("%s attempting to connet to %s", n.Host.ID(), multiAddr))
 
+	err = OpenStream(n.Host.Network().LocalPeer().String())
+	if err != nil {
+		return fmt.Errorf("Failed to open stream: %v", err)
+	}
+
 	if err := n.Host.Connect(context.Background(), *peerInfo); err != nil {
 		helper.PrintError(fmt.Sprintf("Failed to connect to peer: %s", err))
 		return fmt.Errorf("Failed to connect to peer")
@@ -80,5 +86,6 @@ func makeHost(port int, randomness io.Reader) (host.Host, error) {
 	return libp2p.New(
 		libp2p.ListenAddrs(sourceMultiAddr),
 		libp2p.Identity(prvKey),
+		libp2p.Muxer("/yamux/1.0.0", yamux.DefaultTransport),
 	)
 }

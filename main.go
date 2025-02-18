@@ -46,9 +46,9 @@ func main() {
 	case "connect-to-peer":
 		err = nodeA.Connect(*peerAddr)
 		if err != nil {
-			log.Fatalf("Failed to connect to peer: %v", err)
+			helper.PrintError(fmt.Sprintf("Failed to connect to peer: %v", err))
 		} else {
-			log.Println("Successfully connected to peer")
+			helper.PrintSuccess("Successfully connected to peer")
 		}
 	default:
 		log.Fatalf("Unknown command: %s. Use 'start-server' or 'connect-to-peer'.", *command)
