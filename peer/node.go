@@ -54,10 +54,10 @@ func (n *Node) Connect(multiAddr string) error {
 
 	helper.PrintInfo(fmt.Sprintf("%s attempting to connet to %s", n.Host.ID(), multiAddr))
 
-	err = OpenStream(n.Host.Network().LocalPeer().String())
-	if err != nil {
-		return fmt.Errorf("Failed to open stream: %v", err)
-	}
+	// err = OpenStream(n.Host.Network().LocalPeer().String())
+	// if err != nil {
+	// 	return fmt.Errorf("Failed to open stream: %v", err)
+	// }
 
 	if err := n.Host.Connect(context.Background(), *peerInfo); err != nil {
 		helper.PrintError(fmt.Sprintf("Failed to connect to peer: %s", err))
