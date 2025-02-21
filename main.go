@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 	"p2p-file-sharing-system/helper"
-	"p2p-file-sharing-system/peer"
+	"p2p-file-sharing-system/server"
 	"p2p-file-sharing-system/types"
 	"strconv"
 )
@@ -27,26 +27,29 @@ func main() {
 		panic(err)
 	}
 
-	nodeAConfig := &types.NodeConfig{
+	nodeConfig := &types.NodeConfig{
 		ID:   *id,
 		Port: port,
 	}
 
-	nodeA, err := peer.NewNode(*nodeAConfig)
-	if err != nil {
-		log.Fatalf("Failed to initialize Node A: %v", err)
-	}
-
 	switch *command {
 	case "start-server":
+		if err = server.Start(*nodeConfig); err != nil {
+			helper.PrintError(fmt.Sprintf("Error starting the server: %s", err))
+			os.Exit(1)
+		}
 	case "connect-to-peer":
 		multiAddr := fmt.Sprintf("/ip4/%s/tcp/%s/p2p/%s", *remotePeerAddr, *remotePeerPort, *remotePeerID)
-		err = nodeA.Connect(multiAddr)
-		if err != nil {
-			helper.PrintError(fmt.Sprintf("Failed to connect to peer: %v", err))
-		} else {
-			helper.PrintSuccess("Successfully connected to peer")
+		if err = server.Connect(*nodeConfig, multiAddr); err != nil {
+			helper.PrintError(fmt.Sprintf("Error connecting to the node: %s", err))
+			os.Exit(1)
 		}
+		// err = nodeA.Connect(multiAddr)
+		// if err != nil {
+		// 	helper.PrintError(fmt.Sprintf("Failed to connect to peer: %v", err))
+		// } else {
+		// 	helper.PrintSuccess("Successfully connected to peer")
+		// }
 	default:
 		log.Fatalf("Unknown command: %s. Use 'start-server' or 'connect-to-peer'.", *command)
 		os.Exit(1)

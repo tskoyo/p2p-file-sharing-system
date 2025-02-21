@@ -34,6 +34,8 @@ func TestNewNode_WithInvalidPort(t *testing.T) {
 }
 
 func TestConnect_MultipleClients(t *testing.T) {
+	// # TODO: Find a way to handle this more effectively
+	// currently only 8 nodes can connect simulatenously to one node
 	numClients := 8
 	var wg sync.WaitGroup
 	clientErrors := make(chan error, numClients)
